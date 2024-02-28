@@ -1,0 +1,85 @@
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Weather API Display</title>
+   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+ </head>
+ <body>
+ 
+ <div id="app">
+   <form @submit.prevent="fetchWeather">
+     <label for="name">City Name:</label>
+     <input type="text" id="name" v-model="cityName">
+     <label for="page">Page:</label>
+     <input type="number" id="page" v-model.number="page">
+     <button type="submit">Fetch Weather</button>
+   </form>
+   <div v-if="weatherData.length">
+     <div v-for="(city, index) in weatherData" :key="index" class="card">
+         <h2>{{ city.name }}</h2>
+         <p>Weather: {{ city.weather }}</p>
+         <ul>
+             <li v-for="(status, key) in city.status" :key="key">{{ status }}</li>
+         </ul>
+        <button class="delete-btn" @click="deleteCity(index)">Delete</button>
+     </div>
+   </div>
+   <p v-else>Nothing To Show</p>
+ </div>
+ 
+ <script>
+ const { createApp, ref } = Vue;
+ 
+ createApp({
+   setup() {
+     const cityName = ref('a');
+     const page = ref(1);
+     const weatherData = ref([]);
+ 
+     const fetchWeather = async () => {
+       const apiUrl = `https://jsonmock.hackerrank.com/api/weather/search?name=${cityName.value}&page=${page.value}`;
+       try {
+         const response = await fetch(apiUrl);
+         const data = await response.json();
+         weatherData.value = data.data;
+       } catch (error) {
+         console.error('Error fetching weather data:', error);
+       }
+     };
+ 
+     const deleteCity = (index) => {
+       weatherData.value.splice(index, 1);
+     };
+ 
+     return { cityName, page, weatherData, fetchWeather, deleteCity };
+   }
+ }).mount('#app');
+ </script>
+ 
+ <style>
+ .card {
+   border: 1px solid #ccc;
+   border-radius: 5px;
+   padding: 10px;
+   margin-bottom: 10px;
+ }
+ 
+ .delete-btn {
+   background-color: #ff4136;
+   color: white;
+   border: none;
+   border-radius: 5px;
+   padding: 5px 10px;
+   cursor: pointer;
+ }
+ 
+ .delete-btn:hover {
+   background-color: #d50000;
+ }
+ </style>
+ 
+ </body>
+ </html>
+ 
